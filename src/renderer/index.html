@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quill</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">
+          <span class="sidebar-icon">✒️</span>
+          <span>Quill</span>
+        </div>
+        <button class="icon-btn" id="settingsBtn" title="Settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+
+      <button class="new-meeting-btn" id="newRecordingBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"></circle>
+          <circle cx="12" cy="12" r="3" fill="currentColor"></circle>
+        </svg>
+        New Recording
+      </button>
+
+      <div class="meetings-list" id="meetingsList">
+        <!-- Meetings will be populated here -->
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">💼</div>
+        <h2>No Meeting Selected</h2>
+        <p>Select a meeting from the sidebar or start a new recording</p>
+      </div>
+
+      <!-- Meeting View (Original Style) -->
+      <div class="meeting-view" id="meetingView" style="display: none;">
+        <!-- Meeting Header -->
+        <header class="meeting-header">
+          <div class="meeting-date" id="meetingDate">@Today 3:38 PM</div>
+          <div class="meeting-title-row">
+            <button class="emoji-btn" id="emojiBtn" title="Change emoji">
+              <span id="meetingEmoji">📋</span>
+            </button>
+            <h1 class="meeting-title" id="meetingTitle" contenteditable="true">Meeting Title</h1>
+            <button class="icon-btn delete-btn" id="deleteMeetingBtn" title="Delete meeting">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <!-- Tabs - Notion Style -->
+        <nav class="tabs">
+          <button class="tab active" data-tab="summary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="8" y1="6" x2="21" y2="6"></line>
+              <line x1="8" y1="12" x2="21" y2="12"></line>
+              <line x1="8" y1="18" x2="21" y2="18"></line>
+              <line x1="3" y1="6" x2="3.01" y2="6"></line>
+              <line x1="3" y1="12" x2="3.01" y2="12"></line>
+              <line x1="3" y1="18" x2="3.01" y2="18"></line>
+            </svg>
+            Summary
+          </button>
+          <button class="tab" data-tab="notes">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Notes
+          </button>
+          <button class="tab" data-tab="transcript">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="23"></line>
+              <line x1="8" y1="23" x2="16" y2="23"></line>
+            </svg>
+            Transcript
+          </button>
+          <div class="tab-spacer"></div>
+        </nav>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+          <!-- Summary Tab -->
+          <div class="tab-panel active" id="summaryPanel">
+            <div class="summary-content" id="summaryContent">
+              <p class="placeholder-text">Summary will appear here after processing is complete.</p>
+            </div>
+          </div>
+
+          <!-- Notes Tab -->
+          <div class="tab-panel" id="notesPanel">
+            <textarea class="notes-editor" id="notesEditor" placeholder="Add your notes here..."></textarea>
+          </div>
+
+          <!-- Transcript Tab -->
+          <div class="tab-panel" id="transcriptPanel">
+            <div class="transcript-content" id="transcriptContent">
+              <p class="placeholder-text">Transcript will appear here after processing.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recording View (Notion Style) -->
+      <div class="recording-view" id="recordingView" style="display: none;">
+        <div class="meeting-header">
+          <div class="meeting-date" id="recordingDate">@Today</div>
+          <div class="meeting-title-row">
+            <button class="emoji-btn" id="recordingEmojiBtn">
+              <span id="recordingEmoji">🎙️</span>
+            </button>
+            <h1 class="meeting-title" id="recordingTitle">Recording...</h1>
+          </div>
+        </div>
+
+        <div class="recording-card">
+          <div class="card-header">
+            <span class="card-title" id="cardTitle">Meeting</span>
+            <span class="card-date" id="cardDate">@Today</span>
+          </div>
+          <div class="card-tabs">
+            <button class="card-tab active" data-recording-tab="notes">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              Notes
+            </button>
+            <button class="card-tab" data-recording-tab="transcript">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="23"></line>
+                <line x1="8" y1="23" x2="16" y2="23"></line>
+              </svg>
+              Transcript
+            </button>
+            <div class="tab-dots" id="tabDotsWaves">
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+            <div class="wave-bar-dots"></div>
+          </div>
+            <div class="recording-timer-inline">
+              <div class="recording-dot"></div>
+              <span id="recordingTime">00:00</span>
+            </div>
+            <button class="pause-btn" id="pauseBtn">Pause</button>
+            <button class="stop-btn" id="stopRecordingBtn">Stop</button>
+          </div>
+
+          <div class="card-content">
+            <!-- Notes panel for recording -->
+            <div class="recording-panel active" id="recordingNotesPanel">
+              <textarea class="notes-editor" id="recordingNotesEditor" placeholder="Take notes during the meeting..."></textarea>
+            </div>
+            <!-- Transcript panel for recording -->
+            <div class="recording-panel" id="recordingTranscriptPanel">
+              <div class="live-transcript" id="liveTranscript">
+                <p class="placeholder-text">Listening... Transcript will appear as you speak.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Processing View -->
+      <div class="processing-view" id="processingView" style="display: none;">
+        <div class="processing-spinner"></div>
+        <h2>Processing your meeting...</h2>
+        <p>Generating transcript and summary</p>
+      </div>
+    </main>
+
+    <!-- Emoji Picker Modal -->
+    <div class="modal" id="emojiModal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content emoji-picker">
+        <div class="emoji-picker-header">
+          <h3>Choose an Emoji</h3>
+          <p class="emoji-hint">Press <kbd>Ctrl</kbd>+<kbd>Cmd</kbd>+<kbd>Space</kbd> for more emojis</p>
+        </div>
+        <div class="emoji-input-wrapper">
+          <input type="text" id="emojiInput" class="emoji-input" placeholder="Click here, then press Ctrl+Cmd+Space" maxlength="2">
+        </div>
+        <div class="emoji-grid">
+          <button class="emoji-option" data-emoji="📝">📝</button>
+          <button class="emoji-option" data-emoji="📋">📋</button>
+          <button class="emoji-option" data-emoji="📊">📊</button>
+          <button class="emoji-option" data-emoji="💼">💼</button>
+          <button class="emoji-option" data-emoji="🎯">🎯</button>
+          <button class="emoji-option" data-emoji="💡">💡</button>
+          <button class="emoji-option" data-emoji="🚀">🚀</button>
+          <button class="emoji-option" data-emoji="⭐">⭐</button>
+          <button class="emoji-option" data-emoji="🔥">🔥</button>
+          <button class="emoji-option" data-emoji="💬">💬</button>
+          <button class="emoji-option" data-emoji="🎙️">🎙️</button>
+          <button class="emoji-option" data-emoji="📞">📞</button>
+          <button class="emoji-option" data-emoji="🤝">🤝</button>
+          <button class="emoji-option" data-emoji="📅">📅</button>
+          <button class="emoji-option" data-emoji="✅">✅</button>
+          <button class="emoji-option" data-emoji="❌">❌</button>
+          <button class="emoji-option" data-emoji="⚡">⚡</button>
+          <button class="emoji-option" data-emoji="🎨">🎨</button>
+          <button class="emoji-option" data-emoji="🔧">🔧</button>
+          <button class="emoji-option" data-emoji="📈">📈</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Settings</h2>
+          <button class="modal-close" id="closeSettingsBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="apiKeyInput">Groq API Key</label>
+            <input type="password" id="apiKeyInput" placeholder="gsk_...">
+            <p class="form-hint">Get your free API key at <a href="https://console.groq.com" target="_blank">console.groq.com</a></p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" id="cancelSettingsBtn">Cancel</button>
+          <button class="btn-primary" id="saveSettingsBtn">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Recording Modal -->
+    <div class="modal" id="recordingModal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Start Recording</h2>
+          <button class="modal-close" id="closeRecordingModalBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="recordingTitleInput">Meeting Title</label>
+            <div class="title-input-row">
+              <button class="emoji-select-btn" id="newRecordingEmojiBtn">
+                <span id="newRecordingEmoji">🎙️</span>
+              </button>
+              <input type="text" id="recordingTitleInput" placeholder="e.g., Weekly Team Standup">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" id="cancelRecordingBtn">Cancel</button>
+          <button class="btn-primary" id="startRecordingBtn">Start Recording</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

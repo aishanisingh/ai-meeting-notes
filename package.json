@@ -1,0 +1,40 @@
+{
+  "name": "quill",
+  "version": "1.0.0",
+  "description": "Quill - Your AI-powered meeting scribe",
+  "main": "src/main/index.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "NODE_ENV=development electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.quill.app",
+    "productName": "Quill",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "assets/icon.icns",
+      "hardenedRuntime": true,
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "AI Meeting Notes needs microphone access to record and transcribe meetings.",
+        "NSAppleEventsUsageDescription": "AI Meeting Notes needs to detect running applications."
+      }
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*"
+    ]
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "groq-sdk": "^0.37.0",
+    "openai": "^4.20.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.0"
+  }
+}

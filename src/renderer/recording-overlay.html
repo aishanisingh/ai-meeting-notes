@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recording</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: transparent;
+      -webkit-app-region: drag;
+    }
+
+    .overlay {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .recording-dot {
+      width: 10px;
+      height: 10px;
+      background: #ef4444;
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    .recording-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    /* Audio Waveform */
+    .audio-waves {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      height: 20px;
+      padding: 0 6px;
+    }
+
+    .wave-bar {
+      width: 3px;
+      min-height: 3px;
+      height: 3px;
+      background: #ef4444;
+      border-radius: 2px;
+      transition: height 0.05s ease;
+    }
+
+    .recording-time {
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b7280;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stop-btn {
+      -webkit-app-region: no-drag;
+      width: 24px;
+      height: 24px;
+      background: #ef4444;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 4px;
+      transition: background 0.15s;
+    }
+
+    .stop-btn:hover {
+      background: #dc2626;
+    }
+
+    .stop-icon {
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 1px;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="recording-dot"></div>
+    <span class="recording-text">Recording</span>
+    <div class="audio-waves" id="audioWaves">
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+    </div>
+    <span class="recording-time" id="time">00:00</span>
+    <button class="stop-btn" id="stopBtn" title="Stop Recording">
+      <div class="stop-icon"></div>
+    </button>
+  </div>
+
+  <script>
+    let startTime = Date.now();
+    let timerInterval;
+    let audioContext;
+    let analyser;
+    let microphone;
+    let animationId;
+
+    const waveBars = document.querySelectorAll('.wave-bar');
+
+    function updateTime() {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+      const secs = (elapsed % 60).toString().padStart(2, '0');
+      document.getElementById('time').textContent = `${mins}:${secs}`;
+    }
+
+    // Initialize audio visualization
+    async function initAudioVisualization() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        microphone = audioContext.createMediaStreamSource(stream);
+
+        analyser.fftSize = 32;
+        analyser.smoothingTimeConstant = 0.5;
+        microphone.connect(analyser);
+
+        visualize();
+      } catch (err) {
+        console.log('Audio visualization not available:', err);
+      }
+    }
+
+    function visualize() {
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function draw() {
+        animationId = requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(dataArray);
+
+        // Map frequency data to wave bars
+        const barCount = waveBars.length;
+        for (let i = 0; i < barCount; i++) {
+          // Sample different frequency ranges for each bar
+          const index = Math.floor((i / barCount) * bufferLength);
+          const value = dataArray[index] || 0;
+          // Scale to height (3px min, 18px max)
+          const height = Math.max(3, (value / 255) * 18);
+          waveBars[i].style.height = `${height}px`;
+        }
+      }
+
+      draw();
+    }
+
+    // Start timer and audio visualization
+    timerInterval = setInterval(updateTime, 1000);
+    initAudioVisualization();
+
+    // Stop button
+    document.getElementById('stopBtn').addEventListener('click', async () => {
+      if (animationId) cancelAnimationFrame(animationId);
+      if (audioContext) audioContext.close();
+      await window.api.stopRecording();
+    });
+
+    // Listen for recording start to reset timer
+    window.api.onRecordingStarted(() => {
+      startTime = Date.now();
+      updateTime();
+    });
+  </script>
+</body>
+</html>
